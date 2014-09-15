@@ -58,6 +58,9 @@ import java.util.Set;
  */
 public final class LdapMultirecordPersonAttributeDao implements IPersonAttributeDao {
 
+    /** The name of the query attribute used for the username. */
+    public static final String USERNAME_ATTRIBUTE = "username";
+
     /** Logger instance. */
     private final Logger logger = LoggerFactory.getLogger(this.getClass());
 
@@ -161,7 +164,7 @@ public final class LdapMultirecordPersonAttributeDao implements IPersonAttribute
     @PostConstruct
     public void initialize() {
         searchScope = determineSearchScope();
-        attributes = resultAttributeMapping.keySet().toArray(new String[0]);
+        attributes = resultAttributeMapping.keySet().toArray(new String[resultAttributeMapping.size()]);
     }
 
     /**
@@ -292,14 +295,57 @@ public final class LdapMultirecordPersonAttributeDao implements IPersonAttribute
         request.setTimeLimit(searchControls.getTimeLimit());
         return request;
     }
-    @Override
-    public Set<IPersonAttributes> getPeople(final Map<String, Object> stringObjectMap) {
-        throw new UnsupportedOperationException("not implemented");
+
+    /**
+     * Validates the common portions of the query attributes map.
+     *
+     * @param queryAttributes the query attributes map.
+     */
+    private void validateQueryAttributesMap(final Map<String, ?> queryAttributes) {
+        if (queryAttributes.size() != 1) {
+            throw new RuntimeException("queries for multiple attributes are not supported");
+        }
+        if (!queryAttributes.containsKey(USERNAME_ATTRIBUTE)) {
+            throw new RuntimeException("no username provided");
+        }
+    }
+
+    /**
+     * Gets all matching records for a user ID.
+     *
+     * @param uid the user ID.
+     * @return the set of matching users.
+     */
+    private Set<IPersonAttributes> getPeople(final String uid) {
+        final Set<IPersonAttributes> result = new HashSet<IPersonAttributes>();
+        final IPersonAttributes person = getPerson(uid);
+        if (person != null) {
+            result.add(person);
+        }
+        return result;
     }
 
     @Override
-    public Set<IPersonAttributes> getPeopleWithMultivaluedAttributes(final Map<String, List<Object>> stringListMap) {
-        throw new UnsupportedOperationException("not implemented");
+    public Set<IPersonAttributes> getPeople(final Map<String, Object> queryAttributes) {
+        validateQueryAttributesMap(queryAttributes);
+        return getPeople(queryAttributes.get(USERNAME_ATTRIBUTE).toString());
+    }
+
+    @Override
+    public Set<IPersonAttributes> getPeopleWithMultivaluedAttributes(final Map<String, List<Object>> queryAttributes) {
+        validateQueryAttributesMap(queryAttributes);
+
+        // Get the username to search for.
+        final List<Object> usernames = queryAttributes.get(USERNAME_ATTRIBUTE);
+        if (usernames == null || usernames.size() == 0) {
+            throw new RuntimeException("no username provided");
+        }
+        if (usernames.size() > 1) {
+            throw new RuntimeException("queries for multiple usernames are not supported");
+        }
+        final String uid = usernames.get(0).toString();
+
+        return getPeople(uid);
     }
 
     @Override
@@ -313,7 +359,7 @@ public final class LdapMultirecordPersonAttributeDao implements IPersonAttribute
     }
 
     @Override
-    public Map<String, List<Object>> getMultivaluedUserAttributes(final Map<String, List<Object>> stringListMap) {
+    public Map<String, List<Object>> getMultivaluedUserAttributes(final Map<String, List<Object>> queryAttributes) {
         throw new UnsupportedOperationException("not implemented");
     }
 
