@@ -1,8 +1,8 @@
 /*
- * Licensed to Jasig under one or more contributor license
+ * Licensed to Apereo under one or more contributor license
  * agreements. See the NOTICE file distributed with this work
  * for additional information regarding copyright ownership.
- * Jasig licenses this file to you under the Apache License,
+ * Apereo licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License.  You may obtain a
  * copy of the License at the following location:
@@ -36,10 +36,7 @@ public interface OAuthConstants {
     String CLIENT_SECRET = "client_secret";
 
     /** The approval prompt. */
-    String APPROVAL_PROMPT = "approval_prompt";
-
-    /** Auto approve the client. */
-    String AUTO_APPROVE = "auto";
+    String BYPASS_APPROVAL_PROMPT = "bypass_approval_prompt";
 
     /** The code. */
     String CODE = "code";
@@ -56,6 +53,9 @@ public interface OAuthConstants {
     /** The access token. */
     String ACCESS_TOKEN = "access_token";
 
+    /** The bearer token. */
+    String BEARER_TOKEN = "bearer";
+    
     /** The OAUT h20_ callbackurl. */
     String OAUTH20_CALLBACKURL = "oauth20_callbackUrl";
 
