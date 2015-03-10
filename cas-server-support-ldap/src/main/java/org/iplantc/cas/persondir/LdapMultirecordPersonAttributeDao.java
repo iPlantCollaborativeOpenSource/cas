@@ -1,8 +1,8 @@
 /*
- * Licensed to Jasig under one or more contributor license
+ * Licensed to Apereo under one or more contributor license
  * agreements. See the NOTICE file distributed with this work
  * for additional information regarding copyright ownership.
- * Jasig licenses this file to you under the Apache License,
+ * Apereo licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file
  * except in compliance with the License.  You may obtain a
  * copy of the License at the following location:
@@ -55,6 +55,9 @@ import java.util.Set;
  * belongs to in an LDAP directory that didn't have a reverse lookup for group membership, but it can be
  * useful in any case where multiple LDAP records must be combined into a set of attributes for a single
  * user.
+ *
+ * @author Dennis Roberts
+ * @since 4.1.0
  */
 public final class LdapMultirecordPersonAttributeDao implements IPersonAttributeDao {
 
@@ -199,7 +202,7 @@ public final class LdapMultirecordPersonAttributeDao implements IPersonAttribute
      * @return the IPersonAttributes instance.
      */
     private IPersonAttributes attributesFromSearchResult(final String uid, final SearchResult result) {
-        logger.debug("found " + result.size() + " results for user " + uid);
+        logger.debug("found {} results for user {}", result.size(), uid);
 
         // Quit early if there are no results.
         if (result.size() == 0) {
@@ -212,7 +215,7 @@ public final class LdapMultirecordPersonAttributeDao implements IPersonAttribute
             for (final String ldapAttributeName : resultAttributeMapping.keySet()) {
                 final LdapAttribute attribute = entry.getAttribute(ldapAttributeName);
                 if (attribute != null) {
-                    logger.debug("adding attribute " + ldapAttributeName + " for user " + uid);
+                    logger.debug("adding attribute {} for user {}", ldapAttributeName, uid);
                     final List<Object> values = new ArrayList<Object>(attribute.getStringValues());
                     for (final String attributeName : resultAttributeMapping.get(ldapAttributeName)) {
                         addAttribute(attributes, attributeName, values);
@@ -221,7 +224,7 @@ public final class LdapMultirecordPersonAttributeDao implements IPersonAttribute
             }
         }
 
-        logger.debug("Attributes: " + attributes);
+        logger.debug("Attributes: {}", attributes);
         return new NamedPersonImpl(uid, attributes);
     }
 
